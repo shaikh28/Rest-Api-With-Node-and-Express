@@ -45,7 +45,7 @@ app.use((req, res, next) => {
             next();
         }
     );
-    // next()// this will let the server give the response to client
+    // next()// this will let the server give the response to client  from server
 });
 app.use((req, res, next) => {
     console.log("Hello from middleware 2"); // this will stop the response
