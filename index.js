@@ -1,5 +1,4 @@
 const express = require("express");
-const users = require("./MOCK_DATA.json");
 const fs = require("fs");
 const app = express();
 const mongoose = require("mongoose")
@@ -52,30 +51,35 @@ app.use((req, res, next) => {
     next()
 });
 
-app.get("/api/users", (req, res) => {
-    return res.json(users);
+app.get("/api/users", async (req, res) => {
+    const allDbUsers = await User.find({})
+
+    return res.json(allDbUsers);
 });
 
-app.get("/users", (req, res) => {
+app.get("/users",async (req, res) => {
+    const allDbUsers = await User.find({})
     const html = `
     <ul>
-    ${users.map((user) => `<li>${user.first_name}</li>`).join("")}
+    ${allDbUsers.map((user) =>`<li>${user.firstName}- ${user.email}</li>`).join("")}
     </ul>
     `;
-    return res.end(html)
+    return res.send(html)
 });
 app
     .route("/api/users/:id")
-    .get((req, res) => {
-        const id = Number(req.params.id);
-        const user = users.find((user) => user.id === id);
-        return res.json(user);
+    .get( async (req, res) => {
+       const user = await User.findById(req.params.id)
+       if(!user) return res.status(404).json({error:'User Not Found'})
+       return res.json(user);
     })
-    .patch((req, res) => {
-        res.json({ status: "pending" });
+    .patch( async (req, res) => {
+        await User.findByIdAndUpdate(req.params.id,{lastName:"Williams"})
+        res.json({ status: "Success" });
     })
-    .delete((req, res) => {
-        res.json({ status: "pending" });
+    .delete( async (req, res) => {
+        await User.findByIdAndDelete(req.params.id)
+        res.json({ status: "Success" });
     });
 app.post("/api/users", async (req, res) => {
     const body = req.body;
